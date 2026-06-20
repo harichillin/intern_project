@@ -1,0 +1,13 @@
+{
+  "name": "nexacore-db-utils",
+  "version": "1.0.0",
+  "description": "Database utilities and seeding for NexaCore Sentinel AI",
+  "main": "seed.js",
+  "scripts": {
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "pg": "^8.11.3"
+  }
+}
