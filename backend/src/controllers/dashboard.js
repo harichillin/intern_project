@@ -35,8 +35,8 @@ exports.getStats = async (req, res) => {
         avgCreditScore: Math.round(parseFloat(avgCreditScore.rows[0].avg)),
         openAlerts: parseInt(openAlerts.rows[0].count)
       },
-      segments: segments.rows,
-      churnRisk: churnRisk.rows
+      segments: segments.rows.map(row => ({ ...row, count: parseInt(row.count) })),
+      churnRisk: churnRisk.rows.map(row => ({ ...row, count: parseInt(row.count) }))
     });
   } catch (error) {
     console.error(error);
