@@ -4,10 +4,12 @@ import { Bell, ChevronRight, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
 
 const PAGE_LABELS = {
-  '/':          'INTELLIGENCE OVERVIEW',
-  '/customers': 'CUSTOMER 360',
-  '/fraud':     'FRAUD & SECURITY CENTER',
-  '/reports':   'FINANCIAL FLUX TIMELINE',
+  '/':             'INTELLIGENCE OVERVIEW',
+  '/customers':    'CUSTOMER 360',
+  '/fraud':        'FRAUD & SECURITY CENTER',
+  '/reports':      'FINANCIAL REPORTS',
+  '/transactions': 'LIVE TRANSACTION FEED',
+  '/control':      'CONTROL PANEL',
 };
 
 const Header = () => {

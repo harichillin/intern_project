@@ -49,6 +49,15 @@ class FraudInput(BaseModel):
     login_frequency: int
     last_login_days: int
 
+@app.post("/reload")
+def reload_models():
+    global churn_model, fraud_model
+    if os.path.exists(CHURN_MODEL_PATH) and os.path.exists(FRAUD_MODEL_PATH):
+        churn_model = joblib.load(CHURN_MODEL_PATH)
+        fraud_model = joblib.load(FRAUD_MODEL_PATH)
+        return {"status": "reloaded", "models_loaded": True}
+    return {"status": "error", "models_loaded": False}
+
 @app.get("/")
 def health_check():
     return {

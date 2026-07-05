@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard';
 import Customer360 from './pages/Customer360';
 import FraudCenter from './pages/FraudCenter';
 import TimelineView from './pages/TimelineView';
+import TransactionFeed from './pages/TransactionFeed';
+import ControlPanel from './pages/ControlPanel';
 
 function App() {
   return (
@@ -16,10 +18,12 @@ function App() {
           <Header />
           <main className="flex-1">
             <Routes>
-              <Route path="/"          element={<Dashboard />} />
-              <Route path="/customers" element={<Customer360 />} />
-              <Route path="/fraud"     element={<FraudCenter />} />
-              <Route path="/reports"   element={<TimelineView />} />
+              <Route path="/"              element={<Dashboard />} />
+              <Route path="/customers"     element={<Customer360 />} />
+              <Route path="/fraud"         element={<FraudCenter />} />
+              <Route path="/reports"       element={<TimelineView />} />
+              <Route path="/transactions"  element={<TransactionFeed />} />
+              <Route path="/control"       element={<ControlPanel />} />
             </Routes>
           </main>
         </div>

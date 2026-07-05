@@ -100,3 +100,20 @@ exports.refreshPredictions = async (req, res) => {
     res.status(500).json({ error: 'Failed to sync with ML Service' });
   }
 };
+
+exports.bulkOutreach = async (req, res) => {
+  try {
+    const { customer_ids, status } = req.body;
+    if (!customer_ids?.length) return res.status(400).json({ error: 'No customer IDs provided' });
+    const validStatuses = ['none', 'contacted', 'in_progress', 'resolved'];
+    if (!validStatuses.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+    await db.query(
+      `UPDATE customers SET outreach_status = $1 WHERE customer_id = ANY($2::uuid[])`,
+      [status, customer_ids]
+    );
+    res.json({ success: true, updated: customer_ids.length });
+  } catch (error) {
+    console.error('Bulk outreach error:', error.message);
+    res.status(500).json({ error: 'Failed to update outreach status' });
+  }
+};
