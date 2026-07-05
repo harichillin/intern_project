@@ -1,54 +1,77 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, ShieldAlert, BarChart3, Database } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldAlert, BarChart3, Activity } from 'lucide-react';
 
-const Sidebar = () => {
-  const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Customer 360', path: '/customers', icon: <Users size={20} /> },
-    { name: 'Fraud Center', path: '/fraud', icon: <ShieldAlert size={20} /> },
-    { name: 'Financial Reports', path: '/reports', icon: <BarChart3 size={20} /> },
-  ];
+const navItems = [
+  { name: 'DASHBOARD',     path: '/',          icon: <LayoutDashboard size={15} /> },
+  { name: 'CUSTOMER 360',  path: '/customers', icon: <Users size={15} /> },
+  { name: 'FRAUD CENTER',  path: '/fraud',     icon: <ShieldAlert size={15} /> },
+  { name: 'REPORTS',       path: '/reports',   icon: <BarChart3 size={15} /> },
+];
 
-  return (
-    <div className="w-64 h-screen bg-surface border-r border-slate-700/50 flex flex-col fixed left-0 top-0">
-      <div className="p-6 flex items-center space-x-3 border-b border-slate-700/50">
-        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-          <Database className="text-white" size={24} />
+const Sidebar = () => (
+  <div className="w-64 h-screen bg-surface border-r border-white/[0.06] flex flex-col fixed left-0 top-0">
+
+    {/* Logo / Brand */}
+    <div className="px-6 py-5 border-b border-white/[0.06]">
+      <div className="flex items-center gap-3 mb-1">
+        <div className="w-7 h-7 bg-primary flex items-center justify-center">
+          <Activity size={14} className="text-black" />
         </div>
-        <h1 className="text-xl font-bold tracking-tight">NexaCore</h1>
+        <span className="font-mono text-sm font-600 tracking-widest text-white uppercase">NexaCore</span>
       </div>
-      
-      <nav className="flex-1 p-4 space-y-2 mt-4">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                isActive 
-                ? 'bg-primary/20 text-primary border-l-4 border-primary' 
-                : 'text-secondary hover:bg-slate-700/30 hover:text-white'
-              }`
-            }
-          >
-            {item.icon}
-            <span className="font-medium">{item.name}</span>
-          </NavLink>
-        ))}
-      </nav>
+      <p className="font-mono text-[10px] text-secondary tracking-[0.2em] pl-10">SENTINEL AI v2.0</p>
+    </div>
 
-      <div className="p-6 border-t border-slate-700/50">
-        <div className="bg-slate-800/50 p-4 rounded-xl text-center">
-          <p className="text-xs text-secondary mb-1 uppercase tracking-widest font-semibold">Sentinel Engine</p>
-          <p className="text-safe text-sm flex items-center justify-center gap-2">
-            <span className="w-2 h-2 bg-safe rounded-full animate-pulse"></span>
-            System Live
-          </p>
-        </div>
+    {/* Module label */}
+    <div className="px-6 pt-6 pb-2">
+      <p className="font-mono text-[9px] text-secondary/50 tracking-[0.25em] uppercase">Navigation</p>
+    </div>
+
+    {/* Nav Items */}
+    <nav className="flex-1 px-3 space-y-0.5">
+      {navItems.map(item => (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          end={item.path === '/'}
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2.5 text-[11px] font-mono tracking-wider transition-all duration-150 ${
+              isActive
+                ? 'bg-primary/10 text-primary border-l-2 border-primary pl-[10px]'
+                : 'text-secondary hover:text-white hover:bg-white/[0.04] border-l-2 border-transparent pl-[10px]'
+            }`
+          }
+        >
+          {item.icon}
+          <span>{item.name}</span>
+        </NavLink>
+      ))}
+    </nav>
+
+    {/* Status Footer */}
+    <div className="px-6 py-5 border-t border-white/[0.06]">
+      <div className="flex items-center justify-between mb-3">
+        <span className="font-mono text-[9px] text-secondary/50 tracking-[0.2em] uppercase">System Status</span>
+        <span className="font-mono text-[9px] text-safe tracking-wider">LIVE</span>
+      </div>
+      <div className="space-y-1.5">
+        {[
+          { label: 'ML ENGINE', status: 'ONLINE' },
+          { label: 'DATABASE', status: 'ONLINE' },
+          { label: 'API LAYER', status: 'ONLINE' },
+        ].map(s => (
+          <div key={s.label} className="flex items-center justify-between">
+            <span className="font-mono text-[9px] text-secondary/70 tracking-wider">{s.label}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-safe animate-ping-slow" />
+              <span className="font-mono text-[9px] text-safe/80">{s.status}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 export default Sidebar;

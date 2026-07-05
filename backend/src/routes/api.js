@@ -13,6 +13,7 @@ const report = require('../controllers/report');
 
 // Dashboard
 router.get('/dashboard/stats', dashboard.getStats);
+router.get('/dashboard/heatmap', dashboard.getHeatmap);
 
 // Customers
 router.get('/customers', customer.getAllCustomers);

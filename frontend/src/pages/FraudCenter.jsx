@@ -2,7 +2,7 @@ import React from 'react';
 import useFetch from '../hooks/useFetch';
 import { StatusBadge } from '../components/MetricCard';
 import SkeletonLoader from '../components/SkeletonLoader';
-import { AlertCircle, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, CheckCircle2, AlertOctagon } from 'lucide-react';
 import axios from 'axios';
 
 const FraudCenter = () => {
@@ -13,43 +13,78 @@ const FraudCenter = () => {
     refetch();
   };
 
-  return (
-    <div className="p-8 space-y-8">
-      <header>
-        <h2 className="text-3xl font-bold">Fraud & Security Center</h2>
-        <p className="text-secondary mt-1">Real-time anomaly monitoring powered by NexaCore ML Sentinel</p>
-      </header>
+  const openAlerts    = alerts?.filter(a => a.status === 'open')     || [];
+  const resolvedAlerts = alerts?.filter(a => a.status !== 'open')    || [];
 
-      <div className="grid grid-cols-1 gap-4">
-        {loading ? (
-          <SkeletonLoader type="list" />
-        ) : alerts?.map(alert => (
-          <div key={alert.id} className={`bg-surface p-6 rounded-2xl border border-slate-700/50 flex items-center justify-between transition-all ${alert.status === 'open' ? 'border-l-4 border-l-risk' : 'opacity-60'}`}>
-            <div className="flex items-center space-x-6">
-              <div className={`p-4 rounded-2xl ${alert.status === 'open' ? 'bg-risk/10 text-risk' : 'bg-safe/10 text-safe'}`}>
-                {alert.status === 'open' ? <ShieldAlert size={28}/> : <CheckCircle2 size={28}/>}
-              </div>
-              <div>
-                <h4 className="text-lg font-bold">{alert.type}</h4>
-                <p className="text-sm text-secondary">Customer: <span className="text-slate-200 font-semibold">{alert.customer_name}</span> • Risk Confidence: {(alert.risk_score * 100).toFixed(1)}%</p>
-                <p className="text-xs text-slate-500 mt-1">{new Date(alert.created_at).toLocaleString()}</p>
-              </div>
+  return (
+    <div className="p-6 space-y-6 animate-in">
+
+      {/* Header */}
+      <div className="border-b border-white/[0.06] pb-4">
+        <h2 className="font-mono text-lg font-semibold tracking-wider text-white">FRAUD & SECURITY CENTER</h2>
+        <p className="font-mono text-[10px] text-secondary tracking-widest mt-0.5">REAL-TIME ANOMALY MONITORING · NEXACORE ML SENTINEL</p>
+      </div>
+
+      {/* Summary bar */}
+      {alerts && (
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'TOTAL ALERTS',    value: alerts.length,      color: 'text-white' },
+            { label: 'OPEN',            value: openAlerts.length,  color: 'text-risk' },
+            { label: 'RESOLVED',        value: resolvedAlerts.length, color: 'text-safe' },
+          ].map(s => (
+            <div key={s.label} className="bg-surface border border-white/[0.06] p-4">
+              <p className="font-mono text-[9px] text-secondary tracking-widest">{s.label}</p>
+              <p className={`font-mono text-2xl font-semibold mt-1 ${s.color}`}>{s.value}</p>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <StatusBadge type="risk" value={alert.risk_score} />
+          ))}
+        </div>
+      )}
+
+      {/* Alert Feed */}
+      {loading ? (
+        <SkeletonLoader />
+      ) : (
+        <div className="space-y-2">
+          {alerts?.map(alert => (
+            <div
+              key={alert.id}
+              className={`bg-surface border border-white/[0.06] p-4 flex items-center justify-between transition-all ${
+                alert.status === 'open'
+                  ? 'border-l-2 border-l-risk'
+                  : 'opacity-50 border-l-2 border-l-transparent'
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <div className={`p-2 ${alert.status === 'open' ? 'bg-risk/10 text-risk' : 'bg-safe/10 text-safe'}`}>
+                  {alert.status === 'open' ? <AlertOctagon size={18} /> : <CheckCircle2 size={18} />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="font-mono text-[11px] font-semibold text-white">{alert.type}</p>
+                    <StatusBadge type="risk" value={alert.risk_score} />
+                  </div>
+                  <p className="font-mono text-[10px] text-secondary">
+                    {alert.customer_name} &nbsp;·&nbsp; Risk: {(alert.risk_score * 100).toFixed(1)}%
+                  </p>
+                  <p className="font-mono text-[9px] text-secondary/40 mt-0.5">
+                    {new Date(alert.created_at).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
               {alert.status === 'open' && (
-                <button 
+                <button
                   onClick={() => handleResolve(alert.id)}
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm font-semibold transition"
+                  className="font-mono text-[9px] tracking-wider px-3 py-1.5 border border-white/[0.08] text-secondary hover:border-safe/50 hover:text-safe transition-colors"
                 >
-                  Mark as Resolved
+                  MARK RESOLVED
                 </button>
               )}
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,41 +1,74 @@
 import React from 'react';
 import useFetch from '../hooks/useFetch';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 const TimelineView = () => {
   const { data: revenue, loading } = useFetch('/reports/revenue');
 
-  return (
-    <div className="p-8 space-y-8">
-      <header>
-        <h2 className="text-3xl font-bold">Financial Flux Timeline</h2>
-        <p className="text-secondary mt-1">Aggregated bank-wide net transaction flow</p>
-      </header>
+  const total = revenue?.reduce((s, r) => s + parseFloat(r.net_flow), 0) || 0;
+  const positive = revenue?.filter(r => parseFloat(r.net_flow) > 0).length || 0;
 
-      <div className="bg-surface p-8 rounded-2xl border border-slate-700/50">
-        <div className="h-[500px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={revenue}>
-              <defs>
-                <linearGradient id="colorFlux" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
-              <XAxis 
-                dataKey="date" 
-                stroke="#64748b" 
-                tickFormatter={(date) => new Date(date).toLocaleDateString()}
-              />
-              <YAxis stroke="#64748b" />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                labelFormatter={(date) => new Date(date).toLocaleDateString()}
-              />
-              <Area type="monotone" dataKey="net_flow" stroke="#10b981" fillOpacity={1} fill="url(#colorFlux)" name="Net Cash Flow" />
-            </AreaChart>
-          </ResponsiveContainer>
+  return (
+    <div className="p-6 space-y-6 animate-in">
+
+      {/* Header */}
+      <div className="border-b border-white/[0.06] pb-4">
+        <h2 className="font-mono text-lg font-semibold tracking-wider text-white">FINANCIAL FLUX TIMELINE</h2>
+        <p className="font-mono text-[10px] text-secondary tracking-widest mt-0.5">AGGREGATED BANK-WIDE NET TRANSACTION FLOW</p>
+      </div>
+
+      {/* Summary cards */}
+      {revenue && (
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'DATA POINTS',     value: revenue.length },
+            { label: 'POSITIVE DAYS',   value: positive },
+            { label: 'NET TOTAL ($)',    value: `${total >= 0 ? '+' : ''}${(total/1000).toFixed(1)}k` },
+          ].map(s => (
+            <div key={s.label} className="bg-surface border border-white/[0.06] p-4">
+              <p className="font-mono text-[9px] text-secondary tracking-widest">{s.label}</p>
+              <p className={`font-mono text-2xl font-semibold mt-1 ${s.label === 'NET TOTAL ($)' ? (total >= 0 ? 'text-safe' : 'text-risk') : 'text-white'}`}>
+                {s.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Chart */}
+      <div className="bg-surface border border-white/[0.06] p-5">
+        <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase mb-4">Daily Net Cash Flow</p>
+        <div className="h-96">
+          {loading ? (
+            <div className="h-full flex items-center justify-center">
+              <p className="font-mono text-[10px] text-secondary tracking-widest">LOADING DATA...</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={revenue}>
+                <defs>
+                  <linearGradient id="flowGradPos" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#3fb950" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#3fb950" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="1 4" stroke="rgba(255,255,255,0.05)" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#8b949e"
+                  tick={{ fontFamily: 'JetBrains Mono', fontSize: 8 }}
+                  tickFormatter={d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                />
+                <YAxis stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 8 }} />
+                <Tooltip
+                  contentStyle={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', fontFamily: 'JetBrains Mono', fontSize: 10 }}
+                  labelFormatter={d => new Date(d).toLocaleDateString()}
+                />
+                <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" strokeDasharray="2 4" />
+                <Area type="monotone" dataKey="net_flow" name="Net Flow ($)" stroke="#3fb950" strokeWidth={1.5} fill="url(#flowGradPos)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>

@@ -5,6 +5,22 @@
 
 const db = require('../config/db');
 
+exports.getHeatmap = async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT customer_id, name, churn_probability, fraud_score, segment FROM customers'
+    );
+    res.json(result.rows.map(r => ({
+      ...r,
+      churn_probability: parseFloat(r.churn_probability),
+      fraud_score: parseFloat(r.fraud_score),
+    })));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch heatmap data' });
+  }
+};
+
 exports.getStats = async (req, res) => {
   try {
     const totalCustomers = await db.query('SELECT COUNT(*) FROM customers');

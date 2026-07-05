@@ -2,9 +2,44 @@ import React, { useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import { StatusBadge } from '../components/MetricCard';
 import SkeletonLoader from '../components/SkeletonLoader';
-import ActionBox from '../components/ActionBox';
-import { Search, RefreshCw, ChevronRight, User, Phone, MapPin, Activity } from 'lucide-react';
+import { Search, RefreshCw, ChevronRight, Users, MapPin, Activity, ShieldAlert, TrendingDown, Star, AlertOctagon, UserCheck, Gift } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
+
+// AI Recommendation Engine — rule-based
+const getRecommendations = (customer) => {
+  const recs = [];
+  const churn = parseFloat(customer.churn_probability);
+  const fraud = parseFloat(customer.fraud_score);
+  const seg   = customer.segment;
+  const health = customer.relationship_health_score;
+
+  if (fraud > 0.75)  recs.push({ icon: <AlertOctagon size={13}/>, label: 'CRITICAL', text: 'Freeze account & initiate fraud review immediately.', color: 'text-risk border-risk/30 bg-risk/5' });
+  else if (fraud > 0.5) recs.push({ icon: <ShieldAlert size={13}/>, label: 'WARNING', text: 'Flag for manual transaction review within 24 hrs.', color: 'text-primary border-primary/30 bg-primary/5' });
+
+  if (churn > 0.75)  recs.push({ icon: <TrendingDown size={13}/>, label: 'URGENT',  text: 'Assign dedicated relationship manager immediately.', color: 'text-risk border-risk/30 bg-risk/5' });
+  else if (churn > 0.5) recs.push({ icon: <UserCheck size={13}/>, label: 'ACTION',  text: 'Offer loyalty incentive or promotional interest rate.', color: 'text-primary border-primary/30 bg-primary/5' });
+
+  if (seg === 'Dormant')   recs.push({ icon: <Activity size={13}/>, label: 'ENGAGE',  text: 'Launch personalised re-engagement campaign.', color: 'text-cyan border-cyan/30 bg-cyan/5' });
+  if (seg === 'Champions') recs.push({ icon: <Star size={13}/>,     label: 'UPSELL',  text: 'Offer premium tier upgrade or exclusive product.', color: 'text-safe border-safe/30 bg-safe/5' });
+  if (seg === 'Potential') recs.push({ icon: <Gift size={13}/>,     label: 'NURTURE', text: 'Enrol in onboarding rewards to increase engagement.', color: 'text-cyan border-cyan/30 bg-cyan/5' });
+
+  if (health < 40)   recs.push({ icon: <TrendingDown size={13}/>, label: 'LOW HEALTH', text: 'Schedule proactive wellness call with advisor.', color: 'text-primary border-primary/30 bg-primary/5' });
+
+  if (recs.length === 0) recs.push({ icon: <UserCheck size={13}/>, label: 'STABLE', text: 'No immediate action required. Continue monitoring.', color: 'text-safe border-safe/30 bg-safe/5' });
+  return recs;
+};
+
+// Build daily balance trend from transactions
+const buildTimeline = (transactions) => {
+  if (!transactions?.length) return [];
+  const byDay = {};
+  transactions.forEach(tx => {
+    const day = new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    byDay[day] = (byDay[day] || 0) + (tx.type === 'credit' ? parseFloat(tx.amount) : -parseFloat(tx.amount));
+  });
+  return Object.entries(byDay).map(([date, net]) => ({ date, net: parseFloat(net.toFixed(2)) }));
+};
 
 const Customer360 = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,160 +52,193 @@ const Customer360 = () => {
       await axios.post(`http://localhost:5000/api/customers/${id}/refresh`);
       refetchDetail();
       refetch();
-    } catch (err) {
-      alert("Failed to sync with ML Service. Ensure it is running.");
+    } catch {
+      alert('Failed to sync with ML Service.');
     }
   };
 
+  const timeline = detail ? buildTimeline(detail.history?.transactions) : [];
+  const recommendations = detail ? getRecommendations(detail) : [];
+
   return (
-    <div className="flex h-full min-h-[calc(100vh-2rem)] space-x-6 p-6">
-      {/* List Panel */}
-      <div className="w-1/3 bg-surface rounded-2xl border border-slate-700/50 flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-slate-700/50">
+    <div className="flex h-full min-h-[calc(100vh-3rem)] gap-4 p-4 animate-in">
+
+      {/* Customer List */}
+      <div className="w-72 shrink-0 bg-surface border border-white/[0.06] flex flex-col overflow-hidden">
+        <div className="p-3 border-b border-white/[0.06]">
+          <p className="font-mono text-[9px] text-secondary tracking-widest uppercase mb-2">Search Customers</p>
           <div className="relative">
-            <Search className="absolute left-3 top-3 text-secondary" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search customers..." 
-              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-2 pl-10 pr-4 focus:border-primary outline-none text-sm"
+            <Search className="absolute left-2.5 top-2 text-secondary" size={12} />
+            <input
+              type="text"
+              placeholder="name..."
+              className="w-full bg-surface-2 border border-white/[0.06] font-mono text-[11px] py-1.5 pl-8 pr-3 text-white placeholder-secondary/40 focus:border-primary/50 outline-none tracking-wide"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
-        
         <div className="flex-1 overflow-y-auto">
-          {loading ? (
-            <div className="p-4"><SkeletonLoader type="list" /></div>
-          ) : (
-            customers?.map(c => (
-              <div 
-                key={c.customer_id}
-                onClick={() => setSelectedId(c.customer_id)}
-                className={`p-4 border-b border-slate-700/30 cursor-pointer transition-all flex items-center justify-between group ${selectedId === c.customer_id ? 'bg-primary/10' : 'hover:bg-slate-700/20'}`}
-              >
-                <div>
-                  <h4 className="font-semibold text-sm">{c.name}</h4>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <StatusBadge type="segment" value={c.segment} />
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-secondary">Risk Score</p>
-                  <p className={`font-bold text-sm ${c.churn_probability > 0.6 ? 'text-risk' : 'text-safe'}`}>
-                    {(c.churn_probability * 100).toFixed(0)}%
-                  </p>
-                </div>
-                <ChevronRight className="text-secondary opacity-0 group-hover:opacity-100 transition-opacity" size={16} />
+          {loading ? <div className="p-3"><SkeletonLoader /></div> : customers?.map(c => (
+            <div
+              key={c.customer_id}
+              onClick={() => setSelectedId(c.customer_id)}
+              className={`px-3 py-2.5 border-b border-white/[0.04] cursor-pointer transition-all flex items-center justify-between group ${
+                selectedId === c.customer_id ? 'bg-primary/10 border-l-2 border-l-primary' : 'hover:bg-white/[0.03] border-l-2 border-l-transparent'
+              }`}
+            >
+              <div>
+                <p className="font-mono text-[11px] text-white font-medium">{c.name}</p>
+                <div className="mt-1"><StatusBadge type="segment" value={c.segment} /></div>
               </div>
-            ))
-          )}
+              <div className="text-right">
+                <p className="font-mono text-[9px] text-secondary">CHURN</p>
+                <p className={`font-mono text-sm font-semibold ${c.churn_probability > 0.6 ? 'text-risk' : 'text-safe'}`}>
+                  {(c.churn_probability * 100).toFixed(0)}%
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Detail Panel */}
-      <div className="flex-1 bg-surface rounded-2xl border border-slate-700/50 p-8 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto space-y-4">
         {!selectedId ? (
-          <div className="h-full flex flex-col items-center justify-center text-secondary">
-            <User size={48} className="mb-4 opacity-20" />
-            <p>Select a customer to view 360 intelligence</p>
+          <div className="h-full bg-surface border border-white/[0.06] flex flex-col items-center justify-center text-secondary">
+            <Users size={32} className="mb-3 opacity-20" />
+            <p className="font-mono text-[10px] tracking-widest">SELECT A CUSTOMER TO VIEW 360 INTELLIGENCE</p>
           </div>
         ) : loadingDetail ? (
-          <SkeletonLoader type="list" />
-        ) : detail && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-            <header className="flex justify-between items-start">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-xl shadow-primary/20">
+          <div className="bg-surface border border-white/[0.06] p-6"><SkeletonLoader /></div>
+        ) : detail && (<>
+
+          {/* Profile header */}
+          <div className="bg-surface border border-white/[0.06] p-5">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary/10 border border-primary/30 flex items-center justify-center font-mono text-xl font-bold text-primary">
                   {detail.name[0]}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{detail.name}</h2>
-                  <div className="flex items-center space-x-4 text-secondary text-sm mt-1">
-                    <span className="flex items-center"><MapPin size={14} className="mr-1"/> {detail.city}</span>
-                    <span className="flex items-center"><Activity size={14} className="mr-1"/> Age: {detail.age}</span>
+                  <h2 className="font-mono text-base font-semibold text-white">{detail.name}</h2>
+                  <div className="flex items-center gap-3 font-mono text-[9px] text-secondary mt-1">
+                    <span className="flex items-center gap-1"><MapPin size={9}/> {detail.city}</span>
+                    <span className="flex items-center gap-1"><Activity size={9}/> AGE {detail.age}</span>
+                    <StatusBadge type="segment" value={detail.segment} />
                   </div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => handleRefreshPredict(detail.customer_id)}
-                className="flex items-center space-x-2 px-4 py-2 bg-primary rounded-xl font-semibold text-sm hover:bg-blue-600 transition shadow-lg shadow-primary/30"
+                className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/30 text-primary font-mono text-[9px] tracking-wider hover:bg-primary/20 transition-colors"
               >
-                <RefreshCw size={16} />
-                <span>Sync Real-time ML</span>
+                <RefreshCw size={11} /> SYNC ML
               </button>
-            </header>
-
-            <div className="grid grid-cols-3 gap-6">
-              <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50">
-                <p className="text-xs text-secondary uppercase font-bold tracking-wider mb-2">Account Balance</p>
-                <p className="text-xl font-bold">${parseFloat(detail.account_balance).toLocaleString()}</p>
-              </div>
-              <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50">
-                <p className="text-xs text-secondary uppercase font-bold tracking-wider mb-2">Credit Score</p>
-                <p className="text-xl font-bold">{detail.credit_score}</p>
-              </div>
-              <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50">
-                <p className="text-xs text-secondary uppercase font-bold tracking-wider mb-2">Health Index</p>
-                <p className="text-xl font-bold">{detail.relationship_health_score}/100</p>
-              </div>
             </div>
 
-            <section>
-              <h3 className="text-lg font-bold mb-4">Risk Intelligence</h3>
-              <div className="grid grid-cols-1 gap-4">
-                <ActionBox 
-                  title="Churn Probability" 
-                  description={`AI analyzes a ${(detail.churn_probability * 100).toFixed(1)}% likelihood of customer attrition.`}
-                  buttonText="Analyze Factors"
-                  icon={<Users />}
-                  type={detail.churn_probability > 0.7 ? 'danger' : 'info'}
-                />
-                <ActionBox 
-                  title="Fraud Threat Score" 
-                  description={`Behavioral analysis indicates a risk level of ${(detail.fraud_score * 100).toFixed(1)}%.`}
-                  buttonText="Review Alerts"
-                  icon={<ShieldAlert size={18} />}
-                  type={detail.fraud_score > 0.5 ? 'warning' : 'info'}
-                />
-              </div>
-            </section>
-
-            <section>
-              <h3 className="text-lg font-bold mb-4">Recent Activity</h3>
-              <div className="bg-slate-800/20 rounded-xl overflow-hidden border border-slate-700/30">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-800/60 text-secondary uppercase text-[10px] tracking-widest font-bold">
-                    <tr>
-                      <th className="px-4 py-3">Merchant</th>
-                      <th className="px-4 py-3">Type</th>
-                      <th className="px-4 py-3">Amount</th>
-                      <th className="px-4 py-3">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detail.history.transactions.map((tx, idx) => (
-                      <tr key={idx} className="border-t border-slate-700/30 hover:bg-slate-700/20 transition-colors">
-                        <td className="px-4 py-3">{tx.merchant}</td>
-                        <td className="px-4 py-3 capitalize">{tx.type}</td>
-                        <td className={`px-4 py-3 font-semibold ${tx.type === 'debit' ? 'text-risk' : 'text-safe'}`}>
-                          {tx.type === 'debit' ? '-' : '+'}${tx.amount}
-                        </td>
-                        <td className="px-4 py-3 text-slate-400">{new Date(tx.timestamp).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+            {/* Stats grid */}
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              {[
+                { label: 'BALANCE',       value: `$${parseFloat(detail.account_balance).toLocaleString()}` },
+                { label: 'CREDIT SCORE',  value: detail.credit_score },
+                { label: 'HEALTH INDEX',  value: `${detail.relationship_health_score}/100` },
+              ].map(s => (
+                <div key={s.label} className="bg-surface-2 border border-white/[0.04] p-3">
+                  <p className="font-mono text-[9px] text-secondary tracking-wider">{s.label}</p>
+                  <p className="font-mono text-base font-semibold text-white mt-1">{s.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Risk scores */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: 'CHURN PROBABILITY', score: detail.churn_probability, color: detail.churn_probability > 0.7 ? 'text-risk' : 'text-primary' },
+              { label: 'FRAUD THREAT SCORE', score: detail.fraud_score, color: detail.fraud_score > 0.5 ? 'text-risk' : 'text-safe' },
+            ].map(r => (
+              <div key={r.label} className="bg-surface border border-white/[0.06] p-4">
+                <p className="font-mono text-[9px] text-secondary tracking-widest mb-2">{r.label}</p>
+                <p className={`font-mono text-3xl font-semibold ${r.color}`}>{(r.score * 100).toFixed(1)}%</p>
+                <div className="mt-3 h-1 bg-white/[0.06]">
+                  <div className={`h-full transition-all ${r.color.replace('text-', 'bg-')}`} style={{ width: `${r.score * 100}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* AI Recommendations */}
+          <div className="bg-surface border border-white/[0.06] p-5">
+            <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase mb-3">AI Recommendations</p>
+            <div className="space-y-2">
+              {recommendations.map((rec, i) => (
+                <div key={i} className={`flex items-start gap-3 border px-3 py-2.5 ${rec.color}`}>
+                  <span className="mt-0.5 shrink-0">{rec.icon}</span>
+                  <div>
+                    <span className="font-mono text-[9px] tracking-widest mr-2 opacity-70">[{rec.label}]</span>
+                    <span className="font-mono text-[11px]">{rec.text}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Health Timeline */}
+          {timeline.length > 0 && (
+            <div className="bg-surface border border-white/[0.06] p-5">
+              <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase mb-4">Transaction Flow Timeline</p>
+              <div className="h-40">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={timeline}>
+                    <defs>
+                      <linearGradient id="flowGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#22d3ee" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="1 4" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="date" stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 8 }} />
+                    <YAxis stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 8 }} />
+                    <Tooltip contentStyle={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', fontFamily: 'JetBrains Mono', fontSize: 10 }} />
+                    <Area type="monotone" dataKey="net" name="Net Flow ($)" stroke="#22d3ee" strokeWidth={1.5} fill="url(#flowGrad)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Transactions */}
+          <div className="bg-surface border border-white/[0.06]">
+            <div className="px-5 py-3 border-b border-white/[0.06]">
+              <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase">Recent Transactions</p>
+            </div>
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  {['MERCHANT','TYPE','AMOUNT','DATE'].map(h => (
+                    <th key={h} className="px-4 py-2.5 font-mono text-[9px] text-secondary tracking-widest">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {detail.history.transactions.map((tx, i) => (
+                  <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
+                    <td className="px-4 py-2.5 font-mono text-[11px] text-white">{tx.merchant}</td>
+                    <td className="px-4 py-2.5 font-mono text-[11px] capitalize text-secondary">{tx.type}</td>
+                    <td className={`px-4 py-2.5 font-mono text-[11px] font-semibold ${tx.type === 'debit' ? 'text-risk' : 'text-safe'}`}>
+                      {tx.type === 'debit' ? '-' : '+'}${tx.amount}
+                    </td>
+                    <td className="px-4 py-2.5 font-mono text-[10px] text-secondary/60">{new Date(tx.timestamp).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>)}
       </div>
     </div>
   );
 };
-
-// Helper for dynamic icon in ActionBox
-import { ShieldAlert } from 'lucide-react';
 
 export default Customer360;
