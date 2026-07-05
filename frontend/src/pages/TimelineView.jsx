@@ -13,8 +13,8 @@ const TimelineView = () => {
 
       {/* Header */}
       <div className="border-b border-white/[0.06] pb-4">
-        <h2 className="font-mono text-lg font-semibold tracking-wider text-white">FINANCIAL FLUX TIMELINE</h2>
-        <p className="font-mono text-[10px] text-secondary tracking-widest mt-0.5">AGGREGATED BANK-WIDE NET TRANSACTION FLOW</p>
+        <h2 className="font-mono text-2xl font-semibold tracking-wider text-white">FINANCIAL FLUX TIMELINE</h2>
+        <p className="font-mono text-sm text-secondary tracking-widest mt-1">AGGREGATED BANK-WIDE NET TRANSACTION FLOW</p>
       </div>
 
       {/* Summary cards */}
@@ -26,7 +26,7 @@ const TimelineView = () => {
             { label: 'NET TOTAL ($)',    value: `${total >= 0 ? '+' : ''}${(total/1000).toFixed(1)}k` },
           ].map(s => (
             <div key={s.label} className="bg-surface border border-white/[0.06] p-4">
-              <p className="font-mono text-[9px] text-secondary tracking-widest">{s.label}</p>
+              <p className="font-mono text-xs text-secondary tracking-widest">{s.label}</p>
               <p className={`font-mono text-2xl font-semibold mt-1 ${s.label === 'NET TOTAL ($)' ? (total >= 0 ? 'text-safe' : 'text-risk') : 'text-white'}`}>
                 {s.value}
               </p>
@@ -37,11 +37,11 @@ const TimelineView = () => {
 
       {/* Chart */}
       <div className="bg-surface border border-white/[0.06] p-5">
-        <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase mb-4">Daily Net Cash Flow</p>
+        <p className="font-mono text-sm text-secondary tracking-[0.15em] uppercase mb-4">Daily Net Cash Flow</p>
         <div className="h-96">
           {loading ? (
             <div className="h-full flex items-center justify-center">
-              <p className="font-mono text-[10px] text-secondary tracking-widest">LOADING DATA...</p>
+              <p className="font-mono text-sm text-secondary tracking-widest">LOADING DATA...</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -56,10 +56,10 @@ const TimelineView = () => {
                 <XAxis
                   dataKey="date"
                   stroke="#8b949e"
-                  tick={{ fontFamily: 'JetBrains Mono', fontSize: 8 }}
+                  tick={{ fontFamily: 'JetBrains Mono', fontSize: 12 }}
                   tickFormatter={d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 />
-                <YAxis stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 8 }} />
+                <YAxis stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 12 }} />
                 <Tooltip
                   contentStyle={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.08)', fontFamily: 'JetBrains Mono', fontSize: 10 }}
                   labelFormatter={d => new Date(d).toLocaleDateString()}

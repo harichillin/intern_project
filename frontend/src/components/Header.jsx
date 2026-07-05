@@ -42,7 +42,7 @@ const Header = () => {
   return (
     <div className="h-12 bg-surface border-b border-white/[0.06] flex items-center justify-between px-6 sticky top-0 z-50">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 font-mono text-[10px] tracking-widest">
+      <div className="flex items-center gap-2 font-mono text-sm tracking-widest">
         <span className="text-secondary">NEXACORE</span>
         <ChevronRight size={10} className="text-secondary/40" />
         <span className="text-primary">{PAGE_LABELS[pathname] || 'MODULE'}</span>
@@ -50,7 +50,7 @@ const Header = () => {
 
       {/* Right side */}
       <div className="flex items-center gap-4">
-        <span className="font-mono text-[9px] text-secondary/50 tracking-widest hidden sm:block">
+        <span className="font-mono text-sm text-secondary/50 tracking-widest hidden sm:block">
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
 
@@ -72,12 +72,12 @@ const Header = () => {
           {open && (
             <div className="absolute right-0 top-8 w-80 bg-surface border border-white/[0.08] shadow-xl z-50 animate-in">
               <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
-                <span className="font-mono text-[10px] tracking-widest text-secondary uppercase">Alerts</span>
-                <span className="font-mono text-[9px] text-risk">{openCount} OPEN</span>
+                <span className="font-mono text-sm tracking-widest text-secondary uppercase">Alerts</span>
+                <span className="font-mono text-sm text-risk">{openCount} OPEN</span>
               </div>
               <div className="max-h-72 overflow-y-auto">
                 {recent.length === 0 ? (
-                  <p className="font-mono text-[10px] text-secondary text-center py-6">NO ALERTS</p>
+                  <p className="font-mono text-sm text-secondary text-center py-6">NO ALERTS</p>
                 ) : recent.map(alert => (
                   <div
                     key={alert.id}
@@ -88,10 +88,10 @@ const Header = () => {
                       {alert.status === 'open' ? <ShieldAlert size={13} /> : <CheckCircle2 size={13} />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-mono text-[10px] text-white truncate">{alert.type}</p>
-                      <p className="font-mono text-[9px] text-secondary truncate">{alert.customer_name}</p>
+                      <p className="font-mono text-sm text-white truncate">{alert.type}</p>
+                      <p className="font-mono text-sm text-secondary truncate">{alert.customer_name}</p>
                     </div>
-                    <span className={`font-mono text-[9px] shrink-0 ${alert.status === 'open' ? 'text-risk' : 'text-safe'}`}>
+                    <span className={`font-mono text-sm shrink-0 ${alert.status === 'open' ? 'text-risk' : 'text-safe'}`}>
                       {(alert.risk_score * 100).toFixed(0)}%
                     </span>
                   </div>
@@ -99,7 +99,7 @@ const Header = () => {
               </div>
               <button
                 onClick={() => { navigate('/fraud'); setOpen(false); }}
-                className="w-full font-mono text-[9px] text-primary tracking-widest py-3 hover:bg-primary/5 transition-colors border-t border-white/[0.06]"
+                className="w-full font-mono text-sm text-primary tracking-widest py-3 hover:bg-primary/5 transition-colors border-t border-white/[0.06]"
               >
                 VIEW ALL →
               </button>

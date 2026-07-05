@@ -7,14 +7,14 @@ export const MetricCard = ({ title, value, icon, change, isPositive }) => (
         {icon}
       </div>
       {change && (
-        <span className={`font-mono text-[10px] tracking-wider px-2 py-0.5 ${
+        <span className={`font-mono text-sm tracking-wider px-2 py-0.5 ${
           isPositive ? 'bg-safe/10 text-safe' : 'bg-risk/10 text-risk'
         }`}>
           {isPositive ? '+' : ''}{change}%
         </span>
       )}
     </div>
-    <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase mb-1">{title}</p>
+    <p className="font-mono text-sm text-secondary tracking-[0.15em] uppercase mb-1">{title}</p>
     <p className="font-mono text-2xl font-semibold text-white tracking-tight">{value}</p>
   </div>
 );
@@ -39,7 +39,7 @@ export const StatusBadge = ({ type, value }) => {
   };
 
   return (
-    <span className={`font-mono px-2 py-0.5 text-[9px] tracking-wider uppercase border ${getStyles()}`}>
+    <span className={`font-mono px-2 py-0.5 text-sm tracking-wider uppercase border ${getStyles()}`}>
       {value}
     </span>
   );

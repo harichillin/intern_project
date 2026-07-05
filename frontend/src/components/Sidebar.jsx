@@ -20,12 +20,12 @@ const Sidebar = () => (
         </div>
         <span className="font-mono text-sm font-600 tracking-widest text-white uppercase">NexaCore</span>
       </div>
-      <p className="font-mono text-[10px] text-secondary tracking-[0.2em] pl-10">SENTINEL AI v2.0</p>
+      <p className="font-mono text-sm text-secondary tracking-[0.2em] pl-10">SENTINEL AI v2.0</p>
     </div>
 
     {/* Module label */}
     <div className="px-6 pt-6 pb-2">
-      <p className="font-mono text-[9px] text-secondary/50 tracking-[0.25em] uppercase">Navigation</p>
+      <p className="font-mono text-sm text-secondary/50 tracking-[0.25em] uppercase">Navigation</p>
     </div>
 
     {/* Nav Items */}
@@ -36,7 +36,7 @@ const Sidebar = () => (
           to={item.path}
           end={item.path === '/'}
           className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2.5 text-[11px] font-mono tracking-wider transition-all duration-150 ${
+            `flex items-center gap-3 px-3 py-2.5 text-[13px] font-mono tracking-wider transition-all duration-150 ${
               isActive
                 ? 'bg-primary/10 text-primary border-l-2 border-primary pl-[10px]'
                 : 'text-secondary hover:text-white hover:bg-white/[0.04] border-l-2 border-transparent pl-[10px]'
@@ -52,8 +52,8 @@ const Sidebar = () => (
     {/* Status Footer */}
     <div className="px-6 py-5 border-t border-white/[0.06]">
       <div className="flex items-center justify-between mb-3">
-        <span className="font-mono text-[9px] text-secondary/50 tracking-[0.2em] uppercase">System Status</span>
-        <span className="font-mono text-[9px] text-safe tracking-wider">LIVE</span>
+        <span className="font-mono text-sm text-secondary/50 tracking-[0.2em] uppercase">System Status</span>
+        <span className="font-mono text-sm text-safe tracking-wider">LIVE</span>
       </div>
       <div className="space-y-1.5">
         {[
@@ -62,10 +62,10 @@ const Sidebar = () => (
           { label: 'API LAYER', status: 'ONLINE' },
         ].map(s => (
           <div key={s.label} className="flex items-center justify-between">
-            <span className="font-mono text-[9px] text-secondary/70 tracking-wider">{s.label}</span>
+            <span className="font-mono text-sm text-secondary/70 tracking-wider">{s.label}</span>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-safe animate-ping-slow" />
-              <span className="font-mono text-[9px] text-safe/80">{s.status}</span>
+              <span className="font-mono text-sm text-safe/80">{s.status}</span>
             </div>
           </div>
         ))}

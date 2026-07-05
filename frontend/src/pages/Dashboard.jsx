@@ -20,7 +20,7 @@ const SEGMENT_COLORS = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#0d1117] border border-white/10 px-3 py-2 font-mono text-[10px]">
+    <div className="bg-[#0d1117] border border-white/10 px-3 py-2 font-mono text-sm">
       <p className="text-secondary tracking-wider mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }}>{p.name}: <span className="text-white">{p.value}</span></p>
@@ -34,7 +34,7 @@ const HeatmapTooltip = ({ active, payload }) => {
   const d = payload[0]?.payload;
   if (!d) return null;
   return (
-    <div className="bg-[#0d1117] border border-white/10 px-3 py-2 font-mono text-[10px] max-w-[160px]">
+    <div className="bg-[#0d1117] border border-white/10 px-3 py-2 font-mono text-sm max-w-[160px]">
       <p className="text-white truncate mb-1">{d.name}</p>
       <p className="text-secondary">Churn: <span className="text-primary">{(d.churn_probability * 100).toFixed(1)}%</span></p>
       <p className="text-secondary">Fraud: <span className="text-risk">{(d.fraud_score * 100).toFixed(1)}%</span></p>
@@ -73,10 +73,10 @@ const Dashboard = () => {
       {/* Page header */}
       <div className="flex justify-between items-end border-b border-white/[0.06] pb-4">
         <div>
-          <h2 className="font-mono text-lg font-semibold tracking-wider text-white">INTELLIGENCE OVERVIEW</h2>
-          <p className="font-mono text-[10px] text-secondary tracking-widest mt-0.5">REAL-TIME PORTFOLIO METRICS + RISK INDICATORS</p>
+          <h2 className="font-mono text-2xl font-semibold tracking-wider text-white">INTELLIGENCE OVERVIEW</h2>
+          <p className="font-mono text-sm text-secondary tracking-widest mt-1">REAL-TIME PORTFOLIO METRICS + RISK INDICATORS</p>
         </div>
-        <span className="font-mono text-[9px] text-secondary/50 tracking-widest border border-white/[0.06] px-3 py-1.5">
+        <span className="font-mono text-xs text-secondary/50 tracking-widest border border-white/[0.06] px-3 py-1.5">
           UPDATED {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
       </div>
@@ -94,7 +94,7 @@ const Dashboard = () => {
 
         {/* Segment Donut */}
         <div className="bg-surface border border-white/[0.06] p-5">
-          <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase mb-4">Customer Segments</p>
+          <p className="font-mono text-sm text-secondary tracking-[0.15em] uppercase mb-4">Customer Segments</p>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -111,7 +111,7 @@ const Dashboard = () => {
             {segments.map(s => (
               <div key={s.segment} className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 shrink-0" style={{ backgroundColor: SEGMENT_COLORS[s.segment] || '#8b949e' }} />
-                <span className="font-mono text-[9px] text-secondary truncate">{s.segment}: <span className="text-white">{s.count}</span></span>
+                <span className="font-mono text-xs text-secondary truncate">{s.segment}: <span className="text-white">{s.count}</span></span>
               </div>
             ))}
           </div>
@@ -119,7 +119,7 @@ const Dashboard = () => {
 
         {/* Churn Risk Area */}
         <div className="lg:col-span-2 bg-surface border border-white/[0.06] p-5">
-          <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase mb-4">Churn Risk Distribution</p>
+          <p className="font-mono text-sm text-secondary tracking-[0.15em] uppercase mb-4">Churn Risk Distribution</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={churnRisk}>
@@ -130,8 +130,8 @@ const Dashboard = () => {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="1 4" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="risk_level" stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 9 }} />
-                <YAxis stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 9 }} />
+                <XAxis dataKey="risk_level" stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 12 }} />
+                <YAxis stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 12 }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="count" name="Customers" stroke="#f0b429" strokeWidth={1.5} fill="url(#churnGrad)" />
               </AreaChart>
@@ -145,14 +145,14 @@ const Dashboard = () => {
         <div className="bg-surface border border-white/[0.06] p-5">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="font-mono text-[10px] text-secondary tracking-[0.15em] uppercase">Risk Heatmap — Churn vs Fraud</p>
-              <p className="font-mono text-[9px] text-secondary/50 mt-0.5">Each dot = 1 customer · Colour = segment · Axis = risk score 0–1</p>
+              <p className="font-mono text-sm text-secondary tracking-[0.15em] uppercase">Risk Heatmap — Churn vs Fraud</p>
+              <p className="font-mono text-xs text-secondary/50 mt-0.5">Each dot = 1 customer · Colour = segment · Axis = risk score 0–1</p>
             </div>
             <div className="flex flex-wrap gap-3">
               {Object.entries(SEGMENT_COLORS).map(([seg, color]) => (
                 <div key={seg} className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-                  <span className="font-mono text-[9px] text-secondary">{seg}</span>
+                  <span className="font-mono text-xs text-secondary">{seg}</span>
                 </div>
               ))}
             </div>
@@ -161,8 +161,8 @@ const Dashboard = () => {
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
                 <CartesianGrid strokeDasharray="1 4" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="fraud_score"       name="Fraud Score"  type="number" domain={[0,1]} stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 9 }} label={{ value: 'FRAUD SCORE', position: 'insideBottom', offset: -2, style: { fontFamily: 'JetBrains Mono', fontSize: 8, fill: '#8b949e' } }} />
-                <YAxis dataKey="churn_probability" name="Churn Risk"   type="number" domain={[0,1]} stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 9 }} label={{ value: 'CHURN', angle: -90, position: 'insideLeft', style: { fontFamily: 'JetBrains Mono', fontSize: 8, fill: '#8b949e' } }} />
+                <XAxis dataKey="fraud_score"       name="Fraud Score"  type="number" domain={[0,1]} stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 12 }} label={{ value: 'FRAUD SCORE', position: 'insideBottom', offset: -2, style: { fontFamily: 'JetBrains Mono', fontSize: 11, fill: '#8b949e' } }} />
+                <YAxis dataKey="churn_probability" name="Churn Risk"   type="number" domain={[0,1]} stroke="#8b949e" tick={{ fontFamily: 'JetBrains Mono', fontSize: 12 }} label={{ value: 'CHURN', angle: -90, position: 'insideLeft', style: { fontFamily: 'JetBrains Mono', fontSize: 11, fill: '#8b949e' } }} />
                 <ZAxis range={[12, 12]} />
                 <Tooltip content={<HeatmapTooltip />} />
                 {segmentGroups.map(([segment, points]) => (

@@ -21,8 +21,8 @@ const FraudCenter = () => {
 
       {/* Header */}
       <div className="border-b border-white/[0.06] pb-4">
-        <h2 className="font-mono text-lg font-semibold tracking-wider text-white">FRAUD & SECURITY CENTER</h2>
-        <p className="font-mono text-[10px] text-secondary tracking-widest mt-0.5">REAL-TIME ANOMALY MONITORING · NEXACORE ML SENTINEL</p>
+        <h2 className="font-mono text-2xl font-semibold tracking-wider text-white">FRAUD & SECURITY CENTER</h2>
+        <p className="font-mono text-sm text-secondary tracking-widest mt-1">REAL-TIME ANOMALY MONITORING · NEXACORE ML SENTINEL</p>
       </div>
 
       {/* Summary bar */}
@@ -34,7 +34,7 @@ const FraudCenter = () => {
             { label: 'RESOLVED',        value: resolvedAlerts.length, color: 'text-safe' },
           ].map(s => (
             <div key={s.label} className="bg-surface border border-white/[0.06] p-4">
-              <p className="font-mono text-[9px] text-secondary tracking-widest">{s.label}</p>
+              <p className="font-mono text-xs text-secondary tracking-widest">{s.label}</p>
               <p className={`font-mono text-2xl font-semibold mt-1 ${s.color}`}>{s.value}</p>
             </div>
           ))}
@@ -61,13 +61,13 @@ const FraudCenter = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p className="font-mono text-[11px] font-semibold text-white">{alert.type}</p>
+                    <p className="font-mono text-sm font-semibold text-white">{alert.type}</p>
                     <StatusBadge type="risk" value={alert.risk_score} />
                   </div>
-                  <p className="font-mono text-[10px] text-secondary">
+                  <p className="font-mono text-sm text-secondary">
                     {alert.customer_name} &nbsp;·&nbsp; Risk: {(alert.risk_score * 100).toFixed(1)}%
                   </p>
-                  <p className="font-mono text-[9px] text-secondary/40 mt-0.5">
+                  <p className="font-mono text-xs text-secondary/40 mt-0.5">
                     {new Date(alert.created_at).toLocaleString()}
                   </p>
                 </div>
@@ -76,7 +76,7 @@ const FraudCenter = () => {
               {alert.status === 'open' && (
                 <button
                   onClick={() => handleResolve(alert.id)}
-                  className="font-mono text-[9px] tracking-wider px-3 py-1.5 border border-white/[0.08] text-secondary hover:border-safe/50 hover:text-safe transition-colors"
+                  className="font-mono text-xs tracking-wider px-3 py-1.5 border border-white/[0.08] text-secondary hover:border-safe/50 hover:text-safe transition-colors"
                 >
                   MARK RESOLVED
                 </button>
