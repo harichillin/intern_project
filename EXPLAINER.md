@@ -4,7 +4,7 @@
 
 Imagine you work at a retail bank that has thousands of customers. Every day, some of those customers quietly stop using your services, switch to a competitor, or worse — commit fraud. By the time you notice, it's too late. You've already lost them or taken a financial hit.
 
-The traditional approach is reactive: wait for something bad to happen, then respond. NexaCore Sentinel AI flips this — it's **proactive**. It monitors every customer's behavior in real time, predicts who is about to leave and who is at risk of fraud, and surfaces those insights to bank staff before the damage is done.
+The traditional approach is reactive: wait for something bad to happen, then respond. NexaCore Sentinel AI flips this — it's **proactive**. It monitors every customer's behavior in real time, predicts who is about to leave and who is at risk of fraud, surfaces those insights to bank staff before the damage is done, and gives them the tools to act directly from the dashboard.
 
 Think of it as an early-warning radar system built specifically for a bank's customer relationship team.
 
@@ -18,9 +18,7 @@ Think of it as an early-warning radar system built specifically for a bank's cus
 The platform assigns every customer a **Churn Probability** (0% to 100%). A score of 78% means the AI predicts there's a 78% chance that customer will leave soon. The bank can then act — offer them a better rate, assign a relationship manager to call them, etc.
 
 ### Fraud Score
-This measures the probability that unusual or suspicious activity is happening on a customer's account. A high fraud score (above 70%) might mean: the customer's login patterns changed suddenly, there were large transactions in quick succession, or the behavior no longer matches their historical profile.
-
-Unlike churn which is about the customer leaving voluntarily, fraud is about unauthorized or suspicious activity that harms either the customer or the bank.
+This measures the probability that unusual or suspicious activity is happening on a customer's account. A high fraud score (above 70%) might mean the customer's login patterns changed suddenly, there were large transactions in quick succession, or the behavior no longer matches their historical profile.
 
 ### Customer Segments
 Not all customers are equal. The platform groups customers into 5 tiers:
@@ -34,74 +32,113 @@ Not all customers are equal. The platform groups customers into 5 tiers:
 | **At Risk** | High churn probability, low engagement — need urgent attention |
 
 ### Relationship Health Score
-A single number (0–100) that combines multiple signals — account balance, credit score, engagement frequency, support ticket history — into one "how healthy is this relationship?" indicator. 100 = ideal customer relationship, 0 = about to be a former customer.
+A single number (0–100) that combines multiple signals — account balance, credit score, engagement frequency, support ticket history — into one indicator of relationship quality. 100 = ideal, 0 = about to be a former customer.
+
+### Outreach Status
+Tracks whether a relationship manager has acted on an at-risk customer: `None → Contacted → In Progress → Resolved`. This can be updated individually or in bulk across multiple customers at once.
 
 ---
 
-## What the Platform Actually Does
+## What the Platform Actually Does — Page by Page
 
-### Dashboard (the command center)
-When you open the app, you see the entire portfolio at a glance:
-- How many total customers exist
-- What the total portfolio balance is
-- Average credit score across all customers
-- How many fraud alerts are currently open
-- A breakdown of customers by segment (who are my Champions vs. who is At Risk?)
-- A distribution of churn risk across the portfolio (how many are High Risk right now?)
+### 1. Dashboard (the command center)
+The homepage gives the entire portfolio at a glance:
+- 4 key metrics: total customers, total portfolio balance, average credit score, open fraud alerts
+- **Customer Segments donut chart** — visual breakdown of Champions vs. Loyal vs. At Risk etc.
+- **Churn Risk Distribution** — how many customers fall into Low, Medium, High risk buckets
+- **Risk Heatmap** — scatter plot of all 1,000 customers simultaneously: X axis = fraud score, Y axis = churn probability, each dot coloured by segment. Instantly reveals which customer clusters need attention.
 
-This gives a bank manager a 60-second health check on the entire customer base every morning.
+### 2. Customer 360 (deep dive on any customer)
+Click any customer in the searchable list and get three tabs:
 
-### Customer 360 (deep dive on one person)
-When a relationship manager wants to focus on a specific customer, they use the Customer 360 page. Search for a name, click on them, and you get:
-- Their full financial snapshot (balance, credit score, health score)
-- Their churn probability and fraud score
-- Their last 10 transactions
-- A "Sync Real-time ML" button — this triggers the AI to re-analyze that customer right now using their latest data and update their risk scores instantly
+**Overview tab:**
+- Financial snapshot: balance, credit score, health index
+- Live churn probability + fraud score with visual progress bars
+- **AI Recommendation Engine** — the system reads the customer's scores and segment and generates specific action suggestions:
+  - "Freeze account & initiate fraud review" (fraud > 75%)
+  - "Assign dedicated relationship manager" (churn > 75%)
+  - "Offer loyalty incentive" (churn > 50%)
+  - "Launch re-engagement campaign" (Dormant segment)
+  - "Offer premium tier upgrade" (Champions segment)
+- **Transaction Flow Timeline** — area chart of net money flow for that customer built from their real transaction history
+- Last 10 transactions table
 
-The "360" in the name means you see the customer from every angle — financial data, behavioral data, risk data, and transaction history — in one place.
+**Support Tickets tab:**
+- All open and resolved support issues for that customer in one view
 
-### Fraud & Security Center (the alert feed)
-This is where fraud alerts surface. Every alert has:
-- The type of suspicious event (Large Transaction, Velocity Spike, Location Mismatch)
-- Which customer triggered it
-- A risk confidence score (how confident the system is this is genuinely suspicious)
-- A "Mark as Resolved" button so staff can close it once investigated
+**Notes tab:**
+- Staff can type and save timestamped notes per customer (e.g., "Called 5 Jul — interested in lower mortgage rate")
+- Notes persist to the database and are visible to anyone who opens that customer's profile
+- Notes can be deleted when no longer relevant
 
-Alerts with red borders are open and need attention. Greyed-out ones are resolved.
+**Bulk Outreach (in the list panel):**
+- Checkbox-select multiple at-risk customers
+- Set outreach status for all of them in one click (Contacted / In Progress / Resolved)
+- Each customer's status shows next to their name in the list
 
-### Financial Reports (the trend view)
-Shows the bank's net cash flow day by day — total credits minus total debits plotted over time. This helps managers spot trends: is money flowing in overall, or is there a net outflow? Are there unusual spikes in any direction?
+### 3. Fraud & Security Center (the alert feed)
+- Summary counts: total alerts, currently open, resolved
+- Every alert shows: type of fraud event, customer name, risk confidence %, timestamp
+- Red left border = open and needs action; greyed out = resolved
+- One-click "Mark Resolved" closes an alert
+
+### 4. Financial Reports (trend analysis)
+- **Daily Net Cash Flow** area chart — credits minus debits over time, with a zero-line reference
+- **Geographic Breakdown** — horizontal bar chart of the top 20 cities ranked by average customer churn risk, colour-coded red/amber/green
+- City data table showing: total customers, average churn %, average fraud %, at-risk count per city
+
+### 5. Live Transaction Feed (bank-wide activity)
+- Shows the 100 most recent transactions across all customers
+- Auto-refreshes every 10 seconds
+- Filter tabs: All / Credits only / Debits only / Flagged (customers with fraud score > 60%)
+- Rows with high-fraud customers get a red left border for quick scanning
+- Shows: transaction type, merchant, customer name, segment, fraud risk, amount, timestamp
+
+### 6. Control Panel (system operations)
+- **System Health** — live status cards for Backend API, ML Engine, and Database with pulsing green indicators
+- **Model Retraining** — one button triggers the full ML pipeline:
+  1. Connects to the live PostgreSQL database
+  2. Trains fresh churn and fraud models on current customer data
+  3. Saves new .joblib model files
+  4. Hot-reloads the ML service — no restart, zero downtime
+- Shows the 5-step training pipeline visually so you can explain exactly what's happening
 
 ---
 
 ## How the AI Actually Works
 
-The AI is not magic — it's a **Random Forest** model, which is a well-established machine learning algorithm. Here's the plain-English version of how it was trained:
+The AI is not magic — it's a **Random Forest** model, a well-established machine learning algorithm that learns patterns from data.
 
-1. The database was seeded with 1,000 realistic fake customers, each with a pre-assigned churn probability and fraud score (based on their behavioral profile).
-2. The training script (`train_models.py`) read all those customers and their scores from the database.
-3. It looked for patterns: "customers with low login frequency + high support ticket count + low account balance tend to have high churn probability."
-4. It encoded those patterns into two saved model files (`churn_model.joblib` and `fraud_model.joblib`).
-5. Now, given any new set of customer stats, the model can predict a score in milliseconds — without needing to re-analyze the entire database.
+**Training** (done once, or re-triggered from Control Panel):
+1. Read all 1,000 customers from PostgreSQL
+2. Find patterns: "customers with low login frequency + high support tickets + low balance tend to have high churn probability"
+3. Encode those patterns into `churn_model.joblib` and `fraud_model.joblib`
 
-This is a simplified but structurally real ML pipeline: the same train → serialize → serve pattern used in production systems at scale.
+**Prediction** (real-time on any customer):
+1. Pass a customer's current stats (age, balance, credit score etc.) to the ML service API
+2. The model returns a probability score in milliseconds
+3. The backend saves the updated score to the database
+4. The frontend re-renders with the new risk values
+
+This is the same **train → serialize → serve** pattern used in production ML systems at scale — just simplified for a prototype.
 
 ---
 
-## The Technology Stack (in plain English)
+## The Technology Stack
 
-| Layer | Technology | Why |
+| Layer | Technology | What it does |
 |---|---|---|
-| What you see in the browser | React + Tailwind CSS + Recharts | React builds the interactive UI; Tailwind handles styling; Recharts draws the charts |
-| The server that handles requests | Node.js + Express | Sits between the frontend and database, handles all the business logic |
-| The database | PostgreSQL | Stores all customer, transaction, ticket, and alert data reliably |
-| The AI engine | Python + FastAPI + Scikit-Learn | Python is the standard for ML; FastAPI serves predictions via a fast API; Scikit-Learn provides the Random Forest algorithm |
+| Browser UI | React + Tailwind CSS + Recharts | Builds the interactive pages; Tailwind handles styling; Recharts draws all charts |
+| API server | Node.js + Express | Handles all requests between frontend, database, and ML service |
+| Database | PostgreSQL | Stores customers, transactions, tickets, alerts, and staff notes |
+| ML engine | Python + FastAPI + Scikit-Learn | Serves real-time churn and fraud predictions via a REST API |
+| Design theme | Fintech Terminal | Near-black background, amber + cyan accents, JetBrains Mono font for data |
 
 ---
 
-## The Data (What's in the Database)
+## The Data
 
-Everything is simulated but realistic — generated using a library called Faker that creates believable fake names, cities, amounts, and dates.
+Everything is simulated but realistic, generated by a library called Faker:
 
 | Data | Volume |
 |---|---|
@@ -109,9 +146,19 @@ Everything is simulated but realistic — generated using a library called Faker
 | Transactions | 10,000 (10 per customer on average) |
 | Support Tickets | 500 |
 | Fraud Alerts | 200 |
+| Staff Notes | 0 (created live by users during the demo) |
+
+---
+
+## Branch Structure
+
+| Branch | What it contains |
+|---|---|
+| `main` | Original app — stable working baseline, original blue design |
+| `feature/redesign` | Fintech Terminal redesign + all new features (this version) |
 
 ---
 
 ## Summary in One Paragraph
 
-NexaCore Sentinel AI is a prototype banking intelligence platform that uses machine learning to predict which customers are about to leave and which are at risk of fraud, then surfaces those insights through a real-time dashboard so bank staff can act before problems escalate. It's built as a full-stack application — a React frontend, a Node.js API, a PostgreSQL database, and a Python ML service — and demonstrates the end-to-end architecture of a real AI-powered product: from data storage, to model training, to live prediction, to visual reporting.
+NexaCore Sentinel AI is a prototype banking intelligence platform that uses machine learning to predict which customers are about to leave and which are at risk of fraud, then gives bank staff a full suite of tools to act on those insights: AI-generated action recommendations per customer, bulk outreach status tracking, staff notes, live transaction monitoring, geographic risk analysis, and the ability to retrain the ML models on demand. It's built as a full-stack application — React frontend, Node.js API, PostgreSQL database, and Python ML service — demonstrating the end-to-end architecture of a real AI-powered product: from data storage, to model training, to live prediction, to visual reporting, to staff workflow tools.
